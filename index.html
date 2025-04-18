@@ -50,8 +50,8 @@
     }
 
     .logo-container img {
-      width: 80%; /* Adjust the width to a percentage of the viewport */
-      height: auto; /* Maintain aspect ratio */
+      width: 80%;
+      height: auto;
     }
 
     .controls {
@@ -69,11 +69,11 @@
       border: 2px solid var(--primary-color);
       border-radius: 10px;
       background: none;
-      color: var(--text-color); /* Default text color for dark mode */
+      color: var(--text-color);
     }
 
     body.light-mode input {
-      color: #000000; /* Change text color to black in light mode */
+      color: #000000;
     }
 
     .controls label {
@@ -175,18 +175,16 @@
       font-size: 1.5em;
     }
 
-    /* Media Query for Larger Screens (Desktop) */
     @media (min-width: 768px) {
       body {
-        overflow: auto; /* Enable scrolling on larger screens */
+        overflow: auto;
       }
     }
   </style>
 </head>
-<body class="dark-mode"> <!-- Dark mode is set by default -->
-  <!-- Logo Section -->
+<body class="dark-mode">
   <div class="logo-container">
-    <img src="brandikub.png" alt="Brandikub Logo"> <!-- Replace with your logo path -->
+    <img src="brandikub.png" alt="Brandikub Logo">
   </div>
 
   <div class="controls">
@@ -278,8 +276,9 @@
           clearInterval(timer);
           isRunning = false;
           startPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-          updateDisplay(0);
           chimeSound.play();
+          remainingSeconds = getInputSeconds();
+          updateDisplay(remainingSeconds);
         }
       }, 1000);
       isRunning = true;
