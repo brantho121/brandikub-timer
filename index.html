@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Brandikub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    :root {
+      --primary-color: #E8372D;
+      --dark-primary-color: #E8372D;
+      --background-color: #121212;
+      --text-color: #ffffff;
+    }
+
+    body.dark-mode {
+      font-family: sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden; /* Disable scrolling on mobile */
+    }
+
+    body.light-mode {
+      font-family: sans-serif;
+      background-color: #ffffff;
+      color: #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden; /* Disable scrolling on mobile */
+    }
+
+    .logo-container {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo-container img {
+      width: 80%; /* Adjust the width to a percentage of the viewport */
+      height: auto; /* Maintain aspect ratio */
+    }
+
+    .controls {
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input {
+      width: 60px;
+      text-align: center;
+      font-size: 1.2em;
+      padding: 8px;
+      border: 2px solid var(--primary-color);
+      border-radius: 10px;
+      background: none;
+      color: var(--text-color); /* Default text color for dark mode */
+    }
+
+    body.light-mode input {
+      color: #000000; /* Change text color to black in light mode */
+    }
+
+    .controls label {
+      margin-right: 10px;
+      font-size: 1em;
+    }
+
+    .progress-container {
+      position: relative;
+      width: 80vmin;
+      height: 80vmin;
+      margin: 20px;
+    }
+
+    .progress-ring {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring__circle {
+      stroke-width: 10;
+      fill: transparent;
+      r: 90;
+      cx: 100;
+      cy: 100;
+    }
+
+    .progress-ring__circle.bg {
+      stroke: lightgray;
+    }
+
+    .progress-ring__circle.fg {
+      stroke: var(--primary-color);
+      transition: stroke-dashoffset 0.5s linear;
+    }
+
+    .timer-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 10vmin;
+      cursor: pointer;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1.5em;
+      cursor: pointer;
+      background: none;
+      border: 2px solid var(--primary-color);
+      border-radius: 10px;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 60px;
+      height: 30px;
+      background: #ccc;
+      border-radius: 15px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+
+    .toggle-switch::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    body.dark-mode .toggle-switch::before {
+      transform: translateX(30px);
+    }
+
+    .icon {
+      font-size: 1.5em;
+    }
+
+    /* Media Query for Larger Screens (Desktop) */
+    @media (min-width: 768px) {
+      body {
+        overflow: auto; /* Enable scrolling on larger screens */
+      }
+    }
+  </style>
+</head>
+<body class="dark-mode"> <!-- Dark mode is set by default -->
+  <!-- Logo Section -->
+  <div class="logo-container">
+    <img src="brandikub.png" alt="Brandikub Logo"> <!-- Replace with your logo path -->
+  </div>
+
+  <div class="controls">
+    <input type="number" id="minutes" value="1" min="0"><label for="minutes">min</label>
+    <input type="number" id="seconds" value="0" min="0" max="59"><label for="seconds">sec</label>
+    <button id="confirmTimeBtn" title="Set Time"><i class="fas fa-check"></i></button>
+  </div>
+
+  <div class="progress-container">
+    <svg class="progress-ring" viewBox="0 0 200 200">
+      <circle class="progress-ring__circle bg" r="90" cx="100" cy="100"></circle>
+      <circle class="progress-ring__circle fg" id="progressCircle" r="90" cx="100" cy="100"></circle>
+    </svg>
+    <div class="timer-display" id="timerDisplay">01:00</div>
+  </div>
+
+  <div class="button-row">
+    <button id="startPauseBtn"><i class="fas fa-play"></i></button>
+    <button id="resetBtn"><i class="fas fa-rotate-right"></i></button>
+  </div>
+
+  <div class="toggle-container">
+    <span class="icon">☀️</span>
+    <div class="toggle-switch" id="darkModeToggle"></div>
+    <span class="icon">🌙</span>
+  </div>
+
+  <audio id="chimeSound">
+    <source src="bell.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    const minutesInput = document.getElementById("minutes");
+    const secondsInput = document.getElementById("seconds");
+    const timerDisplay = document.getElementById("timerDisplay");
+    const startPauseBtn = document.getElementById("startPauseBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const confirmTimeBtn = document.getElementById("confirmTimeBtn");
+    const progressCircle = document.getElementById("progressCircle");
+    const chimeSound = document.getElementById("chimeSound");
+    const darkModeToggle = document.getElementById("darkModeToggle");
+
+    let timer;
+    let totalSeconds = 60;
+    let remainingSeconds = 60;
+    let isRunning = false;
+
+    const radius = progressCircle.r.baseVal.value;
+    const circumference = 2 * Math.PI * radius;
+
+    progressCircle.style.strokeDasharray = `${circumference}`;
+    progressCircle.style.strokeDashoffset = `${circumference}`;
+
+    function setProgress(percent) {
+      const offset = circumference * (1 - percent);
+      progressCircle.style.strokeDashoffset = offset;
+    }
+
+    function updateDisplay(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const s = (seconds % 60).toString().padStart(2, "0");
+      timerDisplay.textContent = `${m}:${s}`;
+      if (totalSeconds > 0) {
+        setProgress((totalSeconds - seconds) / totalSeconds);
+      }
+    }
+
+    function getInputSeconds() {
+      const mins = parseInt(minutesInput.value, 10) || 0;
+      const secs = parseInt(secondsInput.value, 10) || 0;
+      return mins * 60 + secs;
+    }
+
+    function applyNewTime() {
+      pauseTimer();
+      totalSeconds = getInputSeconds();
+      remainingSeconds = totalSeconds;
+      updateDisplay(remainingSeconds);
+    }
+
+    function startTimer() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          updateDisplay(remainingSeconds);
+        } else {
+          clearInterval(timer);
+          isRunning = false;
+          startPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+          updateDisplay(0);
+          chimeSound.play();
+        }
+      }, 1000);
+      isRunning = true;
+      startPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    }
+
+    function pauseTimer() {
+      clearInterval(timer);
+      isRunning = false;
+      startPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+    }
+
+    function resetTimer() {
+      const wasRunning = isRunning;
+      pauseTimer();
+      totalSeconds = getInputSeconds();
+      remainingSeconds = totalSeconds;
+      updateDisplay(remainingSeconds);
+      if (wasRunning) {
+        startTimer();
+      }
+    }
+
+    startPauseBtn.addEventListener("click", () => {
+      if (isRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    });
+
+    resetBtn.addEventListener("click", resetTimer);
+    confirmTimeBtn.addEventListener("click", applyNewTime);
+    timerDisplay.addEventListener("click", resetTimer);
+
+    darkModeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light-mode");
+      document.body.classList.toggle("dark-mode");
+    });
+
+    totalSeconds = getInputSeconds();
+    remainingSeconds = totalSeconds;
+    updateDisplay(remainingSeconds);
+  </script>
+</body>
+</html>
