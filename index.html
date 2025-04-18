@@ -28,7 +28,7 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      overflow: hidden; /* Disable scrolling on mobile */
+      overflow: hidden;
     }
 
     body.light-mode {
@@ -40,7 +40,7 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      overflow: hidden; /* Disable scrolling on mobile */
+      overflow: hidden;
     }
 
     .logo-container {
@@ -312,7 +312,14 @@
 
     resetBtn.addEventListener("click", resetTimer);
     confirmTimeBtn.addEventListener("click", applyNewTime);
-    timerDisplay.addEventListener("click", resetTimer);
+
+    timerDisplay.addEventListener("click", () => {
+      if (isRunning) {
+        resetTimer();
+      } else {
+        startTimer();
+      }
+    });
 
     darkModeToggle.addEventListener("click", () => {
       document.body.classList.toggle("light-mode");
