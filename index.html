@@ -59,6 +59,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      justify-content: center; /* Center align the inputs and labels */
     }
 
     input {
@@ -122,6 +123,7 @@
 
     .button-row {
       display: flex;
+      justify-content: center; /* Center align the buttons */
       gap: 10px;
       margin-top: 10px;
     }
@@ -175,11 +177,62 @@
       font-size: 1.5em;
     }
 
-    @media (min-width: 768px) {
-      body {
-        overflow: auto;
-      }
+    .scoreboard-container {
+      width: 90%;
+      max-width: 600px;
+      margin-top: 20px;
+      text-align: center;
     }
+
+    .scoreboard-player {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .scoreboard-player input[type="text"],
+    .scoreboard-player input[type="number"] {
+      font-size: 1.2em;
+      padding: 8px;
+      border: 2px solid var(--primary-color);
+      border-radius: 10px;
+      background: none;
+      color: var(--text-color);
+    }
+
+    .scoreboard-player input[type="text"] {
+      width: 120px;
+    }
+
+    .scoreboard-player input[type="number"] {
+      width: 60px;
+      text-align: center;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      background: none;
+      border: 2px solid var(--primary-color);
+      border-radius: 10px;
+      color: var(--primary-color);
+    }
+
+    .active-tab {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
   </style>
 </head>
 <body class="dark-mode">
@@ -187,29 +240,43 @@
     <img src="brandikub.png" alt="Brandikub Logo">
   </div>
 
-  <div class="controls">
-    <input type="number" id="minutes" value="1" min="0"><label for="minutes">min</label>
-    <input type="number" id="seconds" value="0" min="0" max="59"><label for="seconds">sec</label>
-    <button id="confirmTimeBtn" title="Set Time"><i class="fas fa-check"></i></button>
+  <div class="tabs">
+    <button id="timerTab" class="tab active-tab">Timer</button>
+    <button id="scoreboardTab" class="tab">Scoreboard</button>
   </div>
 
-  <div class="progress-container">
-    <svg class="progress-ring" viewBox="0 0 200 200">
-      <circle class="progress-ring__circle bg" r="90" cx="100" cy="100"></circle>
-      <circle class="progress-ring__circle fg" id="progressCircle" r="90" cx="100" cy="100"></circle>
-    </svg>
-    <div class="timer-display" id="timerDisplay">01:00</div>
+  <div id="timerSection">
+    <div class="controls">
+      <input type="number" id="minutes" value="1" min="0"><label for="minutes">min</label>
+      <input type="number" id="seconds" value="0" min="0" max="59"><label for="seconds">sec</label>
+      <button id="confirmTimeBtn" title="Set Time"><i class="fas fa-check"></i></button>
+    </div>
+
+    <div class="progress-container">
+      <svg class="progress-ring" viewBox="0 0 200 200">
+        <circle class="progress-ring__circle bg" r="90" cx="100" cy="100"></circle>
+        <circle class="progress-ring__circle fg" id="progressCircle" r="90" cx="100" cy="100"></circle>
+      </svg>
+      <div class="timer-display" id="timerDisplay">01:00</div>
+    </div>
+
+    <div class="button-row">
+      <button id="startPauseBtn"><i class="fas fa-play"></i></button>
+      <button id="resetBtn"><i class="fas fa-rotate-right"></i></button>
+    </div>
+
+    <div class="toggle-container">
+      <span class="icon">☀️</span>
+      <div class="toggle-switch" id="darkModeToggle"></div>
+      <span class="icon">🌙</span>
+    </div>
   </div>
 
-  <div class="button-row">
-    <button id="startPauseBtn"><i class="fas fa-play"></i></button>
-    <button id="resetBtn"><i class="fas fa-rotate-right"></i></button>
-  </div>
-
-  <div class="toggle-container">
-    <span class="icon">☀️</span>
-    <div class="toggle-switch" id="darkModeToggle"></div>
-    <span class="icon">🌙</span>
+  <div id="scoreboardSection" style="display: none;">
+    <div class="scoreboard-container">
+      <div id="playersList"></div>
+      <button id="addPlayerBtn">+ Add Player</button>
+    </div>
   </div>
 
   <audio id="chimeSound">
@@ -227,6 +294,12 @@
     const progressCircle = document.getElementById("progressCircle");
     const chimeSound = document.getElementById("chimeSound");
     const darkModeToggle = document.getElementById("darkModeToggle");
+    const addPlayerBtn = document.getElementById("addPlayerBtn");
+    const playersList = document.getElementById("playersList");
+    const timerTab = document.getElementById("timerTab");
+    const scoreboardTab = document.getElementById("scoreboardTab");
+    const timerSection = document.getElementById("timerSection");
+    const scoreboardSection = document.getElementById("scoreboardSection");
 
     let timer;
     let totalSeconds = 60;
@@ -329,6 +402,58 @@
     totalSeconds = getInputSeconds();
     remainingSeconds = totalSeconds;
     updateDisplay(remainingSeconds);
+
+    // Scoreboard Functions
+    function addPlayer() {
+      const playerDiv = document.createElement("div");
+      playerDiv.classList.add("scoreboard-player");
+
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.placeholder = "Player Name";
+
+      const scoreInput = document.createElement("input");
+      scoreInput.type = "number";
+      scoreInput.value = 0;
+
+      const decBtn = document.createElement("button");
+      decBtn.textContent = "–";
+      decBtn.addEventListener("click", () => {
+        scoreInput.value = parseInt(scoreInput.value || 0) - 1;
+      });
+
+      const incBtn = document.createElement("button");
+      incBtn.textContent = "+";
+      incBtn.addEventListener("click", () => {
+        scoreInput.value = parseInt(scoreInput.value || 0) + 1;
+      });
+
+      const removeBtn = document.createElement("button");
+      removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
+      removeBtn.addEventListener("click", () => {
+        playerDiv.remove();
+      });
+
+      playerDiv.append(removeBtn, nameInput, decBtn, scoreInput, incBtn);
+      playersList.appendChild(playerDiv);
+    }
+
+    addPlayerBtn.addEventListener("click", addPlayer);
+
+    // Tab switching
+    timerTab.addEventListener("click", () => {
+      timerSection.style.display = "block";
+      scoreboardSection.style.display = "none";
+      timerTab.classList.add("active-tab");
+      scoreboardTab.classList.remove("active-tab");
+    });
+
+    scoreboardTab.addEventListener("click", () => {
+      scoreboardSection.style.display = "block";
+      timerSection.style.display = "none";
+      scoreboardTab.classList.add("active-tab");
+      timerTab.classList.remove("active-tab");
+    });
   </script>
 </body>
 </html>
